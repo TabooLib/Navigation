@@ -1,6 +1,7 @@
 package ink.ptms.navigation
 
 import ink.ptms.navigation.pathfinder.NodeEntity
+import io.izzel.taboolib.kotlin.Tasks
 import io.izzel.taboolib.module.command.base.BaseCommand
 import io.izzel.taboolib.module.command.base.BaseMainCommand
 import io.izzel.taboolib.module.command.base.CommandType
@@ -40,12 +41,14 @@ class NavigationCommand : BaseMainCommand() {
         if (pair == null || pair.key == null || pair.value == null) {
             player.sendMessage("§c[Navigation] §7未设置坐标点.")
         }
-        val pathFinder = Navigation.create(NodeEntity(pair!!.key!!, Coerce.toDouble(args.getOrNull(0) ?: 2), Coerce.toDouble(args.getOrNull(1) ?: 1)))
-        val time = System.currentTimeMillis()
-        val findPath = pathFinder.findPath(pair.value!!, Coerce.toFloat(args.getOrNull(2) ?: 16))
-        player.sendMessage("§c[Navigation] §7寻路结果: ${findPath}, 耗时 ${System.currentTimeMillis() - time},s")
-        findPath?.nodes?.forEach {
-            it.display(player)
+        Tasks.task {
+            val pathFinder = Navigation.create(NodeEntity(pair!!.key!!, Coerce.toDouble(args.getOrNull(0) ?: 2), Coerce.toDouble(args.getOrNull(1) ?: 1)))
+            val time = System.currentTimeMillis()
+            val findPath = pathFinder.findPath(pair.value!!, Coerce.toFloat(args.getOrNull(2) ?: 16))
+            player.sendMessage("§c[Navigation] §7寻路结果: ${findPath}, 耗时 ${System.currentTimeMillis() - time}ms")
+            findPath?.nodes?.forEach {
+                it.display(player)
+            }
         }
     }
 
