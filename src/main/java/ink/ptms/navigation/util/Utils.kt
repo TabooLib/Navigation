@@ -2,12 +2,12 @@ package ink.ptms.navigation.util
 
 import io.izzel.taboolib.Version
 import io.izzel.taboolib.module.nms.impl.Position
+import org.bukkit.Location
 import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.material.Openable
 import org.bukkit.util.NumberConversions
 import org.bukkit.util.Vector
-import kotlin.math.sqrt
 
 fun World.getBlockAt(position: Position) = getBlockAt(position.x, position.y, position.z)
 
@@ -34,11 +34,39 @@ fun Position.set(x: Int, y: Int, z: Int): Position {
     return this
 }
 
+fun Position.distSqr(double1: Double, double2: Double, double3: Double, boolean4: Boolean): Double {
+    val double9 = if (boolean4) 0.5 else 0.0
+    val double11 = this.x.toDouble() + double9 - double1
+    val double13 = this.y.toDouble() + double9 - double2
+    val double15 = this.z.toDouble() + double9 - double3
+    return double11 * double11 + double13 * double13 + double15 * double15
+}
+
 fun Position.set(x: Double, y: Double, z: Double): Position {
     setX(NumberConversions.floor(x))
     setY(NumberConversions.floor(y))
     setZ(NumberConversions.floor(z))
     return this
+}
+
+fun Position.distSqr(position: Position): Double {
+    return this.distSqr(position.x.toDouble(), position.y.toDouble(), position.z.toDouble(), true)
+}
+
+fun Position.bottomCenter(): Vector {
+    return Vector(this.x + 0.5, this.y.toDouble() , this.z + 0.5)
+}
+
+fun Position.distSqr(position: Position, boolean2: Boolean): Double {
+    return this.distSqr(position.x.toDouble(), position.y.toDouble(), position.z.toDouble(), boolean2)
+}
+
+fun Position.closerThan(position: Position, double2: Double): Boolean {
+    return this.distSqr(position.x.toDouble(), position.y.toDouble(), position.z.toDouble(), true) < double2 * double2
+}
+
+fun Location.toPosition(): Position {
+    return Position(this.blockX, this.blockY, this.blockZ)
 }
 
 fun Block.isDoor(): Boolean {
