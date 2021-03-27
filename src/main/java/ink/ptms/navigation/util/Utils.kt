@@ -3,6 +3,7 @@ package ink.ptms.navigation.util
 import io.izzel.taboolib.Version
 import io.izzel.taboolib.module.nms.impl.Position
 import org.bukkit.Location
+import org.bukkit.Material
 import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.material.Openable
@@ -87,4 +88,19 @@ fun Block.isOpened(): Boolean {
     } else {
         (state as Openable).isOpen
     }
+}
+
+fun Material.isAirU(): Boolean {
+    if (Version.isAfter(Version.v1_15)) {
+        return this.isAir
+    }
+
+    if (Version.isAfter(Version.v1_13)) {
+        return when (this) {
+            Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.LEGACY_AIR -> true
+            else -> false
+        }
+    }
+
+    return this == Material.AIR
 }

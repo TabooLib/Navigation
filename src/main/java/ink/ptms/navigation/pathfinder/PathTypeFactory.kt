@@ -208,7 +208,7 @@ open class PathTypeFactory(val entity: NodeEntity) {
             val blockTypeName = blockType.name
             return when {
                 // 空气
-                blockType.isAir -> {
+                blockType.isAirU() -> {
                     PathType.OPEN
                 }
                 // 活板门、睡莲、地毯
