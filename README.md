@@ -19,7 +19,7 @@ _不管是 Minecraft 还是 Paper 的寻路 API 都必须要依赖一个当前�
 val start: Location = ...
 // 终点
 val end: Location = ...
-// 创建单位代替 Minecraft 实体，并具有高度宽度等。
+// 创 Minecraft 代理实体，并具有高度宽度等属性。
 val entity = NodeEntity(start, height = 2.0, width = 1.0)
 // 创建 Pathfinder
 val pathfinder = Navigation.create(entity)
@@ -31,4 +31,12 @@ if (path != null) {
         println(node)
     }
 }
+```
+
+# 随机坐标生成器
+```kotlin
+// 创建 Minecraft 代理实体，并具有高度宽度等属性。
+val entity = NodeEntity(start, height = 2.0, width = 1.0)
+// 生成随机坐标
+val random = Navigation.randomPositionGenerator().generateLand(entity, 10, 6)
 ```

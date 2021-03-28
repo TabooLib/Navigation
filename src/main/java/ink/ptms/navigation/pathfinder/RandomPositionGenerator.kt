@@ -199,7 +199,7 @@ object RandomPositionGenerator {
         } else {
             val rX = random.nextInt(2 * restrictX + 1) - restrictX
             val rY = random.nextInt(2 * restrictY + 1) - restrictY
-            val rZ = random.nextInt(2 * rX + 1) - rX
+            val rZ = random.nextInt(2 * restrictX + 1) - restrictX
             Position(rX, rY, rZ)
         }
     }

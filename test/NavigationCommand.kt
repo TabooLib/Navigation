@@ -35,7 +35,7 @@ class NavigationCommand : BaseMainCommand() {
         player.sendMessage("§c[Navigation] §7终点已设置.")
     }
 
-    @SubCommand(description = "寻路", aliases = ["高度?", "宽度?", "最大距离?"], type = CommandType.PLAYER)
+    @SubCommand(description = "寻路", arguments = ["高度?", "宽度?", "最大距离?"], type = CommandType.PLAYER)
     fun find(player: Player, args: Array<String>) {
         val pair = pos[player.name]
         if (pair == null || pair.key == null || pair.value == null) {
