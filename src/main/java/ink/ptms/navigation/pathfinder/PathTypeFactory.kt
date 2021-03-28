@@ -135,115 +135,146 @@ open class PathTypeFactory(val entity: NodeEntity) {
         return rawType
     }
 
-    /**
-     * 获取方块类型
-     * 主要目的是获取其临近的危险方块
-     */
-    open fun getTypeAsNeighbor(world: World, position: Position, pathType: PathType): PathType {
-        (-1..1).forEach { ox ->
-            (-1..1).forEach { oy ->
-                (-1..1).forEach { oz ->
-                    if (ox != 0 || oz != 0) {
-                        val block = world.getBlockAtIfLoaded(Position(position.x + ox, position.y + oy, position.z + oz))
-                        if (block != null) {
-                            val name = block.type.name
-                            when {
-                                name == "CACTUS" -> {
-                                    return PathType.DANGER_CACTUS
-                                }
-                                name == "SWEET_BERRY_BUSH" -> {
-                                    return PathType.DANGER_OTHER
-                                }
-                                name.getFluid().isLava() || name in arrayOf("FIRE", "MAGMA_BLOCK", "CAMPFIRE", "SOUL_CAMPFIRE") -> {
-                                    return PathType.DANGER_FIRE
-                                }
-                                name.getFluid().isWater() -> {
-                                    return PathType.WATER_BORDER
+    companion object {
+        fun getBlockPathTypeStatic(world: World, a: Position): PathType {
+            val integer3: Int = a.x
+            val integer4: Int = a.y
+            val integer5: Int = a.z
+            var cww6 = getRawType(world, a)
+            if (cww6 === PathType.OPEN && integer4 >= 1) {
+                val cww7: PathType = getRawType(world, a.set(integer3, integer4 - 1, integer5))
+                cww6 = if (cww7 !== PathType.WALKABLE && cww7 !== PathType.OPEN && cww7 !== PathType.WATER && cww7 !== PathType.LAVA) PathType.WALKABLE else PathType.OPEN
+                if (cww7 === PathType.DAMAGE_FIRE) {
+                    cww6 = PathType.DAMAGE_FIRE
+                }
+                if (cww7 === PathType.DAMAGE_CACTUS) {
+                    cww6 = PathType.DAMAGE_CACTUS
+                }
+                if (cww7 === PathType.DAMAGE_OTHER) {
+                    cww6 = PathType.DAMAGE_OTHER
+                }
+                if (cww7 === PathType.STICKY_HONEY) {
+                    cww6 = PathType.STICKY_HONEY
+                }
+            }
+
+            if (cww6 === PathType.WALKABLE) {
+                cww6 = getTypeAsNeighbor(world, a.set(integer3, integer4, integer5), cww6)
+            }
+            return cww6
+        }
+
+        /**
+         * 获取方块类型
+         * 主要目的是获取其临近的危险方块
+         */
+        fun getTypeAsNeighbor(world: World, position: Position, pathType: PathType): PathType {
+            (-1..1).forEach { ox ->
+                (-1..1).forEach { oy ->
+                    (-1..1).forEach { oz ->
+                        if (ox != 0 || oz != 0) {
+                            val block = world.getBlockAtIfLoaded(Position(position.x + ox, position.y + oy, position.z + oz))
+                            if (block != null) {
+                                val name = block.type.name
+                                when {
+                                    name == "CACTUS" -> {
+                                        return PathType.DANGER_CACTUS
+                                    }
+                                    name == "SWEET_BERRY_BUSH" -> {
+                                        return PathType.DANGER_OTHER
+                                    }
+                                    name.getFluid().isLava() || name in arrayOf("FIRE", "MAGMA_BLOCK", "CAMPFIRE", "SOUL_CAMPFIRE") -> {
+                                        return PathType.DANGER_FIRE
+                                    }
+                                    name.getFluid().isWater() -> {
+                                        return PathType.WATER_BORDER
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            return pathType
         }
-        return pathType
+
+        /**
+         * 获取单个方块当原始类型
+         * 不对其临近方块进行判断
+         */
+        fun getRawType(world: World, position: Position): PathType {
+            val block = world.getBlockAtIfLoaded(position) ?: return PathType.BLOCKED
+            val blockType = block.type
+            val blockTypeName = blockType.name
+            return when {
+                // 空气
+                blockType.isAirU() -> {
+                    PathType.OPEN
+                }
+                // 活板门、睡莲、地毯
+                blockTypeName.endsWith("TRAPDOOR") || blockTypeName.endsWith("TRAP_DOOR") || blockTypeName == "LILY_PAD" || blockTypeName == "CARPET" -> {
+                    // 能够行走，能够穿过。
+                    PathType.TRAPDOOR
+                }
+                // 栅栏，石墙，关闭的栅栏门
+                blockTypeName.endsWith("FENCE") || blockTypeName.endsWith("WALL") || (blockTypeName.endsWith("FENCE_GATE") && !block.isOpened()) -> {
+                    // 与 Blocked 不同，Fence 拥有 1.5 格高度无法越过。
+                    PathType.FENCE
+                }
+                // 树叶
+                blockTypeName.endsWith("LEAVES") || blockTypeName.endsWith("LEAVES_2") -> {
+                    // 与 Blocked 相同，保留类型
+                    PathType.LEAVES
+                }
+                // 仙人掌
+                blockTypeName.endsWith("CACTUS") -> {
+                    PathType.DAMAGE_CACTUS
+                }
+                // 浆果从
+                blockTypeName == "SWEET_BERRY_BUSH" -> {
+                    PathType.DAMAGE_OTHER
+                }
+                // 蜂蜜块
+                blockTypeName == "HONEY_BLOCK" -> {
+                    PathType.STICKY_HONEY
+                }
+                // 可可豆
+                blockTypeName.endsWith("COCOA") -> {
+                    PathType.COCOA
+                }
+                // 燃烧物
+                blockTypeName in arrayOf("FIRE", "MAGMA_BLOCK", "CAMPFIRE", "SOUL_CAMPFIRE") -> {
+                    // 可以穿过，但会受伤
+                    PathType.DAMAGE_FIRE
+                }
+                // 铁门
+                block.isIronDoor() -> {
+                    if (block.isOpened()) PathType.DOOR_OPEN else PathType.DOOR_IRON_CLOSED
+                }
+                // 木门
+                block.isDoor() -> {
+                    if (block.isOpened()) PathType.DOOR_OPEN else PathType.DOOR_WOOD_CLOSED
+                }
+                // 水
+                blockTypeName.getFluid().isWater() -> {
+                    // 可以越过，但会判断条件
+                    PathType.WATER
+                }
+                // 岩浆
+                blockTypeName.getFluid().isLava() -> {
+                    // 不可越过，但会判断条件
+                    PathType.LAVA
+                }
+                // 其他实体方块
+                block.type.isSolid -> {
+                    // 不可通过，允许越过
+                    PathType.BLOCKED
+                }
+                else -> {
+                    PathType.OPEN
+                }
+            }
+        }
     }
 
-    /**
-     * 获取单个方块当原始类型
-     * 不对其临近方块进行判断
-     */
-    open fun getRawType(world: World, position: Position): PathType {
-        val block = world.getBlockAtIfLoaded(position) ?: return PathType.BLOCKED
-        val blockType = block.type
-        val blockTypeName = blockType.name
-        return when {
-            // 空气
-            blockType.isAir -> {
-                PathType.OPEN
-            }
-            // 活板门、睡莲、地毯
-            blockTypeName.endsWith("TRAPDOOR") || blockTypeName.endsWith("TRAP_DOOR") || blockTypeName == "LILY_PAD" || blockTypeName == "CARPET" -> {
-                // 能够行走，能够穿过。
-                PathType.TRAPDOOR
-            }
-            // 栅栏，石墙，关闭的栅栏门
-            blockTypeName.endsWith("FENCE") || blockTypeName.endsWith("WALL") || (blockTypeName.endsWith("FENCE_GATE") && !block.isOpened()) -> {
-                // 与 Blocked 不同，Fence 拥有 1.5 格高度无法越过。
-                PathType.FENCE
-            }
-            // 树叶
-            blockTypeName.endsWith("LEAVES") || blockTypeName.endsWith("LEAVES_2") -> {
-                // 与 Blocked 相同，保留类型
-                PathType.LEAVES
-            }
-            // 仙人掌
-            blockTypeName.endsWith("CACTUS") -> {
-                PathType.DAMAGE_CACTUS
-            }
-            // 浆果从
-            blockTypeName == "SWEET_BERRY_BUSH" -> {
-                PathType.DAMAGE_OTHER
-            }
-            // 蜂蜜块
-            blockTypeName == "HONEY_BLOCK" -> {
-                PathType.STICKY_HONEY
-            }
-            // 可可豆
-            blockTypeName.endsWith("COCOA") -> {
-                PathType.COCOA
-            }
-            // 燃烧物
-            blockTypeName in arrayOf("FIRE", "MAGMA_BLOCK", "CAMPFIRE", "SOUL_CAMPFIRE") -> {
-                // 可以穿过，但会受伤
-                PathType.DAMAGE_FIRE
-            }
-            // 铁门
-            block.isIronDoor() -> {
-                if (block.isOpened()) PathType.DOOR_OPEN else PathType.DOOR_IRON_CLOSED
-            }
-            // 木门
-            block.isDoor() -> {
-                if (block.isOpened()) PathType.DOOR_OPEN else PathType.DOOR_WOOD_CLOSED
-            }
-            // 水
-            blockTypeName.getFluid().isWater() -> {
-                // 可以越过，但会判断条件
-                PathType.WATER
-            }
-            // 岩浆
-            blockTypeName.getFluid().isLava() -> {
-                // 不可越过，但会判断条件
-                PathType.LAVA
-            }
-            // 其他实体方块
-            block.type.isSolid -> {
-                // 不可通过，允许越过
-                PathType.BLOCKED
-            }
-            else -> {
-                PathType.OPEN
-            }
-        }
-    }
 }
