@@ -55,7 +55,7 @@ fun Position.distSqr(position: Position): Double {
 }
 
 fun Position.bottomCenter(): Vector {
-    return Vector(this.x + 0.5, this.y.toDouble() , this.z + 0.5)
+    return Vector(this.x + 0.5, this.y.toDouble(), this.z + 0.5)
 }
 
 fun Position.distSqr(position: Position, boolean2: Boolean): Double {
@@ -90,17 +90,19 @@ fun Block.isOpened(): Boolean {
     }
 }
 
-fun Material.isAirU(): Boolean {
-    if (Version.isAfter(Version.v1_15)) {
-        return this.isAir
-    }
-
-    if (Version.isAfter(Version.v1_13)) {
-        return when (this) {
-            Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.LEGACY_AIR -> true
-            else -> false
+fun Material.isAirLegacy(): Boolean {
+    return when {
+        Version.isAfter(Version.v1_15) -> isAir
+        Version.isAfter(Version.v1_13) -> {
+            when (this) {
+                Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.LEGACY_AIR -> true
+                else -> false
+            }
         }
+        else -> this == Material.AIR
     }
+}
 
-    return this == Material.AIR
+fun Material.isWater(): Boolean {
+    return name.contains("WATER")
 }

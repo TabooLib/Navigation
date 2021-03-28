@@ -26,11 +26,11 @@ open class NodeEntity(
     val canOpenDoors: Boolean = false,
     val canFloat: Boolean = true,
     val random: Random = Random(),
-    var restrictCenter: Position = Position(0,0,0),
+    var restrictCenter: Position = Position(0, 0, 0),
     var restrictRadius: Float = -1f,
 ) {
     val hasRestriction: Boolean
-    get() = restrictRadius != -1.0f
+        get() = restrictRadius != -1.0f
 
     val x: Double
         get() = location.x
@@ -68,25 +68,25 @@ open class NodeEntity(
         return this.isWithinRestriction(this.location.toPosition())
     }
 
-    open fun isWithinRestriction(fx: Position): Boolean {
-        return if (restrictRadius == -1.0f) {
-            true
-        } else {
-            restrictCenter.distSqr(fx) < (restrictRadius * restrictRadius).toDouble()
-        }
+    open fun isWithinRestriction(pos: Position): Boolean {
+        return if (restrictRadius == -1.0f) true else restrictCenter.distSqr(pos) < (restrictRadius * restrictRadius).toDouble()
     }
 
     fun getWalkTargetValue(pos: Position): Double {
         return this.getWalkTargetValue(pos, location.world)
     }
 
+    /**
+     * 重写后不允许返回 -1 值
+     * 否则会影响随机游荡算法价值计算
+     */
     open fun getWalkTargetValue(pos: Position, world: World): Double {
-        return 0.0
+        return -1.0
     }
 
-    open fun restrictTo(fx: Position, integer: Int) {
-        restrictCenter = fx
-        restrictRadius = integer.toFloat()
+    open fun restrictTo(pos: Position, radius: Int) {
+        restrictCenter = pos
+        restrictRadius = radius.toFloat()
     }
 
     open fun canCutCorner(pathType: PathType): Boolean {
