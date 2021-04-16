@@ -12,9 +12,7 @@ object Navigation {
 
     @TFunction.Load
     private fun load() {
-        if (Version.isBefore(Version.v1_16)) {
-            TDependency.requestLib("it.unimi.dsi:fastutil:8.5.2", TDependency.MAVEN_REPO, "http://ptms.ink:8081/repository/maven-releases/public/fastutil/8.5.2/fastutil-8.5.2.jar")
-        }
+        TDependency.requestLib("it.unimi.dsi:fastutil:8.5.2", TDependency.MAVEN_REPO, "http://ptms.ink:8081/repository/maven-releases/public/fastutil/8.5.2/fastutil-8.5.2.jar")
     }
 
     fun create(nodeEntity: NodeEntity): PathFinder {
