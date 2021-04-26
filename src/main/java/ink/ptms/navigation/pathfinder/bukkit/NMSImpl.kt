@@ -2,6 +2,10 @@ package ink.ptms.navigation.pathfinder.bukkit
 
 import net.minecraft.server.v1_11_R1.BlockTorch
 import net.minecraft.server.v1_11_R1.IBlockAccess
+import net.minecraft.server.v1_12_R1.BlockDoor
+import net.minecraft.server.v1_12_R1.BlockPosition
+import org.bukkit.block.Block
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld
 
 /**
  * Navigation
@@ -55,5 +59,9 @@ class NMSImpl : NMS() {
                 }
             }
         }
+    }
+
+    override fun isDoorOpened(block: Block): Boolean {
+        return (block.world as CraftWorld).handle.getType(BlockPosition(block.x, block.y, block.z)).get(BlockDoor.OPEN)
     }
 }

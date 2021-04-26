@@ -15,6 +15,8 @@ abstract class NMS {
 
     abstract fun getBlockHeight(block: Block): Double
 
+    abstract fun isDoorOpened(block: Block): Boolean
+
     companion object {
 
         @TInject(asm = "ink.ptms.navigation.pathfinder.bukkit.NMSImpl")

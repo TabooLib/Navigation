@@ -1,5 +1,6 @@
 package ink.ptms.navigation.util
 
+import ink.ptms.navigation.pathfinder.bukkit.NMS
 import io.izzel.taboolib.Version
 import io.izzel.taboolib.module.nms.impl.Position
 import org.bukkit.Location
@@ -86,7 +87,7 @@ fun Block.isOpened(): Boolean {
     return if (Version.isAfter(Version.v1_13)) {
         (blockData as org.bukkit.block.data.Openable).isOpen
     } else {
-        (state as Openable).isOpen
+        NMS.INSTANCE.isDoorOpened(this)
     }
 }
 
