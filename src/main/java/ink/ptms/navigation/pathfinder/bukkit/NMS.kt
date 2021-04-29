@@ -1,8 +1,8 @@
 package ink.ptms.navigation.pathfinder.bukkit
 
-import io.izzel.taboolib.Version
 import io.izzel.taboolib.module.inject.TInject
 import org.bukkit.block.Block
+import org.bukkit.entity.Entity
 
 /**
  * Navigation
@@ -13,6 +13,10 @@ import org.bukkit.block.Block
  */
 abstract class NMS {
 
+    abstract fun getBoundingBox(entity: Entity): BoundingBox?
+
+    abstract fun getBoundingBox(block: Block): BoundingBox?
+
     abstract fun getBlockHeight(block: Block): Double
 
     abstract fun isDoorOpened(block: Block): Boolean
@@ -21,6 +25,5 @@ abstract class NMS {
 
         @TInject(asm = "ink.ptms.navigation.pathfinder.bukkit.NMSImpl")
         lateinit var INSTANCE: NMS
-        internal val version = Version.getCurrentVersionInt()
     }
 }

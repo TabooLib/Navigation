@@ -4,10 +4,6 @@ import ink.ptms.navigation.pathfinder.Fluid.Companion.getFluid
 import ink.ptms.navigation.pathfinder.bukkit.NMS
 import ink.ptms.navigation.util.*
 import io.izzel.taboolib.module.nms.impl.Position
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap
 import org.bukkit.util.NumberConversions
 
 /**
@@ -20,8 +16,8 @@ import org.bukkit.util.NumberConversions
 @Suppress("LiftReturnOrAssignment")
 open class NodeReader(val entity: NodeEntity) {
 
-    val nodes: Int2ObjectMap<Node> = Int2ObjectOpenHashMap()
-    val type: Long2ObjectMap<PathType> = Long2ObjectOpenHashMap()
+    val nodes = HashMap<Int, Node>()
+    val type = HashMap<Long, PathType>()
     val typeGetter = PathTypeFactory(entity)
     val world = entity.location.world!!
 
